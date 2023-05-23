@@ -1,0 +1,16 @@
+--I convert the price value from VARCHAR2 to NUMBER to compare prices in the next step
+SELECT 
+    CAST(price AS NUMBER)
+FROM sample_supplier;
+
+SELECT
+  mt.part_number,
+  mt.manufacturer,
+  --I choose the least price and convert it to VARCHAR2 for easier export
+  TO_CHAR(LEAST(mt.price, sp.price)) AS price,
+  --The condition is that if the price in merged_tables < than in sample_supplier, then the min_price column is assigned to "merged_tables", otherwise "sample_supplier"
+  CASE WHEN mt.price < sp.price THEN 'merged_tables' ELSE 'sample_supplier' END AS min_price
+FROM
+  merged_tables mt
+  --I merge rows when part_number and manufacturer match in two tables
+  INNER JOIN sample_supplier sp ON mt.part_number = sp.part_number AND mt.manufacturer = sp.manufacturer;
